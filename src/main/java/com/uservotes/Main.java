@@ -14,8 +14,14 @@ public class Main {
         staticFileLocation("/public");
         IdeaDAO dao = new SimpleIdeaDAO();
 
+        before((req, res) -> {
+            if (req.cookie("username") != null) {
+                req.attribute("username", req.attribute("username"));
+            }
+        });
+
         before("ideas", (req, res) -> {
-            if (req.cookie("username") == null) {
+            if (req.attribute("username") == null) {
                 res.redirect("/");
                 halt();
             }
@@ -23,7 +29,7 @@ public class Main {
 
         get("/", (req, res) -> {
             Map<String, String> model = new HashMap<>();
-            model.put("username", req.cookie("username"));
+            model.put("username", req.attribute("username"));
             return new ModelAndView(model, "index.hbs");
         }, new HandlebarsTemplateEngine());
 
@@ -43,7 +49,7 @@ public class Main {
 
         post("/ideas", (req, res) -> {
             String title = req.queryParams("title");
-            Idea idea = new Idea(title, req.cookie("username"));
+            Idea idea = new Idea(title, req.attribute("username"));
             dao.add(idea);
             res.redirect("ideas");
             return null;
