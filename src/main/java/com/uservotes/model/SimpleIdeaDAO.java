@@ -11,11 +11,11 @@ public class SimpleIdeaDAO implements IdeaDAO {
 
     @Override
     public boolean add(Idea idea) {
-        return false;
+        return ideas.add(idea);
     }
 
     @Override
     public List<Idea> findAll() {
-        return null;
+        return new ArrayList<>(ideas);
     }
 }
