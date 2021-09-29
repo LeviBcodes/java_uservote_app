@@ -18,4 +18,12 @@ public class SimpleIdeaDAO implements IdeaDAO {
     public List<Idea> findAll() {
         return new ArrayList<>(ideas);
     }
+
+    @Override
+    public Idea findBySlug(String slug) {
+        return ideas.stream()
+                .filter(idea -> idea.getSlug().equals(slug))
+                .findFirst()
+                .orElseThrow(NotFoundException::new);
+    }
 }
