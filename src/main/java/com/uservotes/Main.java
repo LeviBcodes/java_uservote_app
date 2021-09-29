@@ -4,12 +4,15 @@ import com.uservotes.model.IdeaDAO;
 import com.uservotes.model.NotFoundException;
 import com.uservotes.model.SimpleIdeaDAO;
 import spark.ModelAndView;
+import spark.Request;
 import spark.template.handlebars.HandlebarsTemplateEngine;
 import java.util.HashMap;
 import java.util.Map;
 import static spark.Spark.*;
 
 public class Main {
+
+    private static final String FLASH_MESSAGE_KEY = "flash_message";
 
     public static void main(String[] args) {
         staticFileLocation("/public");
@@ -45,6 +48,7 @@ public class Main {
         get("/ideas", (req, res) -> {
             Map<String, Object> model = new HashMap<>();
             model.put("ideas", dao.findAll());
+            model.put("flashMessage", getFlashMessage(req));
             return new ModelAndView(model, "ideas.hbs");
         }, new HandlebarsTemplateEngine());
 
@@ -64,7 +68,10 @@ public class Main {
 
         post("/ideas/:slug/vote", (req, res) -> {
             Idea idea = dao.findBySlug(req.params("slug"));
-            idea.addVoter(req.attribute("username"));
+            boolean added = idea.addVoter(req.attribute("username"));
+            if (added) {
+                setFlashMessage(req, "Thanks for voting!");
+            }
             res.redirect("/ideas");
             return null;
         });
@@ -75,5 +82,19 @@ public class Main {
             String html = engine.render(new ModelAndView(null, "not-found.hbs"));
             res.body(html);
         });
+    }
+
+    private static void setFlashMessage(Request req, String message) {
+        req.session().attribute(FLASH_MESSAGE_KEY, message);
+    }
+
+    private static String getFlashMessage(Request req) {
+        if (req.session(false) == null) {
+            return null;
+        }
+        if (!req.session().attributes().contains(FLASH_MESSAGE_KEY)){
+            return null;
+        }
+        return (String) req.session().attribute(FLASH_MESSAGE_KEY);
     }
 }
