@@ -3,14 +3,18 @@ package com.uservotes.model;
 import com.github.slugify.Slugify;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 public class Idea {
     private String slug;
     private String title;
     private String creator;
+    private Set<String> voters;
 
     public Idea(String title, String creator) {
+        voters = new HashSet<>();
         this.title = title;
         this.creator = creator;
         try {
@@ -31,6 +35,14 @@ public class Idea {
 
     public String getSlug() {
         return slug;
+    }
+
+    public boolean addVoter(String voterUserName) {
+        return voters.add(voterUserName);
+    }
+
+    public int getVoteCount() {
+        return voters.size();
     }
 
     @Override

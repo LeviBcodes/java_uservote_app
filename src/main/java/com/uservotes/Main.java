@@ -54,5 +54,12 @@ public class Main {
             res.redirect("ideas");
             return null;
         });
+
+        post("/ideas/:slug/vote", (req, res) -> {
+            Idea idea = dao.findBySlug(req.params("slug"));
+            idea.addVoter(req.attribute("username"));
+            res.redirect("/ideas");
+            return null;
+        });
     }
 }
