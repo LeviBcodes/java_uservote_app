@@ -48,7 +48,7 @@ public class Main {
         get("/ideas", (req, res) -> {
             Map<String, Object> model = new HashMap<>();
             model.put("ideas", dao.findAll());
-            model.put("flashMessage", getFlashMessage(req));
+            model.put("flashMessage", captureFlashMessage(req));
             return new ModelAndView(model, "ideas.hbs");
         }, new HandlebarsTemplateEngine());
 
@@ -71,6 +71,8 @@ public class Main {
             boolean added = idea.addVoter(req.attribute("username"));
             if (added) {
                 setFlashMessage(req, "Thanks for voting!");
+            } else {
+                setFlashMessage(req, "You already voted!");
             }
             res.redirect("/ideas");
             return null;
@@ -97,4 +99,11 @@ public class Main {
         }
         return (String) req.session().attribute(FLASH_MESSAGE_KEY);
     }
+
+    private static String captureFlashMessage(Request req) {
+        String message = getFlashMessage(req);
+        if (message != null ) {
+            req.session().removeAttribute(FLASH_MESSAGE_KEY);
+        }
+        return message;
 }
