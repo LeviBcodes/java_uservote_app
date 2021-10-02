@@ -26,6 +26,7 @@ public class Main {
 
         before("ideas", (req, res) -> {
             if (req.attribute("username") == null) {
+                setFlashMessage(req,"Please sign in first!");
                 res.redirect("/");
                 halt();
             }
@@ -34,6 +35,7 @@ public class Main {
         get("/", (req, res) -> {
             Map<String, String> model = new HashMap<>();
             model.put("username", req.attribute("username"));
+            model.put("flashMessage", captureFlashMessage(req));
             return new ModelAndView(model, "index.hbs");
         }, new HandlebarsTemplateEngine());
 
